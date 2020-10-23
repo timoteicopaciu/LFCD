@@ -5,6 +5,11 @@ from importlib.machinery import SourceFileLoader
 foo = SourceFileLoader("module.name", "D:\Faculty\Year_III_Sem_I\LFCD\Lab 2\lab_02.py").load_module()
 
 def scan(filename):
+    """
+    Scan a program
+    :param filename: string, the name of the file to be scanned
+    :return: none
+    """
     f = open(filename, "r")
     line = f.readline()
     lineNo = 1
@@ -40,7 +45,10 @@ def scan(filename):
         fout.write(str(x[0] + " -> " + str(x[1]) + "\n"))
     fout.close()
 
-    ST.print()
+    fout = open("ST.out", "w")
+    fout.write("The ST is represented as a binary search tree\n")
+    fout.write(ST.getString())
+    fout.close()
 
 
-scan("p1.txt")
+scan("perr.txt")
