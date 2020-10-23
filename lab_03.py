@@ -28,7 +28,7 @@ def scan(filename):
                 continue
             if token in reserved_words or token in operators or token in separators:
                 PIF.append((token, -1))
-            elif re.match('^[A-Za-z_]*$', token) != None or re.match('^[-0-9]*$', token) != None or re.match('^[A-Za-z_?!\"]*$', token) != None:
+            elif re.match('^[A-Za-z_]*$', token) != None or re.match('^[-0-9]*$', token) != None or re.match('^\'[A-Za-z_?!]*\'$', token) != None:
                 if ST.findID(token) == -1:
                     id = ST.add(token)
                 else:
