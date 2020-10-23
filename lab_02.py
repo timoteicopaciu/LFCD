@@ -68,6 +68,19 @@ class BinarySearchTree:
             # Go to the right child
             self.printInorder(index * 2 + 1)
 
+    def getString(self):
+        """
+        Get BST as a string
+        :return: BST as a string
+        """
+        out = ""
+        i = 0
+        for x in self.__tree:
+            if x != '':
+                out = out + str(i) + ": " + str(self.__tree[i]) + "\n"
+            i += 1
+        return out
+
 
 class SymbolTable:
     def __init__(self):
@@ -102,6 +115,9 @@ class SymbolTable:
         """
         self.__binaryTree.printInorder(1)
 
+    def getString(self):
+        return self.__binaryTree.getString()
+
 ST = SymbolTable()
 ST.add('ab')
 ST.add('aa')
@@ -110,4 +126,17 @@ ST.add('cd')
 ST.add('124')
 ST.add('123')
 
-ST.print()
+def euclideanAlgorithm(a, b):
+    while a != b:
+        if a > b:
+            a = a - b
+        else:
+            b = b - a
+    return a
+
+"""
+The purpose of this program is to give three different implementations for computing the Greatest Common Divisor of two numbers.
+For each implementation I prepared an appropriate example in order to demonstrate how the program work. Also, I prepare some proofs and explinations for each implementation. 
+
+
+"""
