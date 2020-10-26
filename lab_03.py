@@ -22,13 +22,13 @@ def scan(filename):
     PIF = []
     while len(line) != 0:
         line = line.strip()
-        tokens = re.split('(\[|\]|\{|\}|\(|\)|;|,| |\+|%|>>|/|<|<=|>|>=|==|!=|=)', line)
+        tokens = re.split('(\[|\]|\{|\}|\(|\)|;|,|\s|\+|-|\*|/|%|>>|<=|>=|==|!=|=|<|>)', line)
         for token in tokens:
             if token == '' or token == ' ':
                 continue
             if token in reserved_words or token in operators or token in separators:
                 PIF.append((token, -1))
-            elif re.match('^[A-Za-z_]*$', token) != None or re.match('^[-0-9]*$', token) != None or re.match('^\'[A-Za-z_?!]*\'$', token) != None:
+            elif re.match('^[A-Za-z][A-Za-z_]*$', token) != None or re.match('^[-]{0,1}[1-9]{1}[0-9]*$', token) != None or token == '0' or re.match('^\'[A-Za-z]{1}[A-Za-z_?!]*\'$', token) != None:
                 if ST.findID(token) == -1:
                     id = ST.add(token)
                 else:
