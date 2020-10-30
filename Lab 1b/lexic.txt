@@ -1,0 +1,35 @@
+Alphabet:
+
+a. Upper (A-Z) and lower case letters (a-z) of the English alphabet
+b. Underline character '_';
+c. Decimal digits (0-9);
+
+Lexic:
+
+      a.Special symbols, representing:
+		- operators: + - * / %  >> <= >= == != = < >
+		- separators [ ] { }  ( ) ; , space
+		- reserved words: define, Integer,Char, while, for, if, else, out, in.Integer, in.Chars 
+
+    
+
+      b.identifiers
+
+		  -a sequence of letters and  digits, such that the first character is a letter; the rule is:
+		    
+		    -> identifier:= letter | letter{letter}{digit}{_}
+		    -> letter:= "A" | "B" | . ..| "Z" | "a" | "b"|...|"z"
+		    -> digit:= "0" | "1" |...| "9"
+
+
+      c.constants
+      	constant:= numerical_constant | character_constant
+
+		1.integer - rule:
+		    -> numerical_constant:= [-]nonZeroDigit{digit} | 0
+		    -> nonZeroDigit:= "1" | "2" |...| "9"		  
+
+		2.character
+		    -> character_constant:= 'letter{letter_?!}'
+
+

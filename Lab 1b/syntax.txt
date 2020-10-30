@@ -1,0 +1,22 @@
+program:= declarationList ";" stmtList
+declarationList:= declaration [declarationList]
+declaration:= "define " type {IDENTIFIER ","} IDENTIFIER ";"
+type:= mainTypes|arrayDecl
+mainTypes:= "Integer", "Char"
+arraysDecl:= mainTypes "[" nr "]"
+
+
+operator:= +| -| *| / | %
+expression:= expression operator constant |IDENTIFIER operator constant | expression operator IDENTIFIER |IDENTIFIER operator IDENTIFIER | IDENTIFIER | constant | IDENTIFIER "[" IDENTIFIER "]"
+
+RELATION:= "<" | "<=" | "==" | "!=" | ">=" | ">"
+
+stmtList:= stmt ";" | stmt ";" stmtList
+stmt:= assignStmt| inStmt | outStmt | ifStmt | whileStmt |  forStmt
+assignStmt:= IDENTIFIER "=" expression
+inStmt:= "in.Integer >>" IDENTIFIER  | "in.Chars >>" IDENTIFIER 
+outStmt:= "out(" text ")" | "out(" IDENTIFIER ")" 
+ifStmt:= "IF(" condition "){" stmtList "}" ["ELSE{" stmtList "}" ]
+whileStmt:= "WHILE(" condition "){" stmtList "}"
+forStmt:= "for(" IDENTIFIER "," expression "," expression "," numerical_constant "){" stmtList "}" 
+condition:= expression RELATION expression
