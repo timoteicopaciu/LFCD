@@ -3,7 +3,7 @@ class Grammar:
     def __init__(self):
         self.__nonTerminals = []
         self.__terminals = []
-        self.__startSymbols = None
+        self.__startSymbol = None
         self.__productions = {}
 
     def readGrammar(self, filename):
@@ -23,7 +23,7 @@ class Grammar:
         self.__terminals = line.split(',')
         line = fin.readline()
         line = line.strip(' \n')
-        self.__startSymbols = line
+        self.__startSymbol = line
         line = fin.readline()
         while line != '':
             line = line.strip(' \n')
