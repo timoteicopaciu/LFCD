@@ -1,0 +1,6 @@
+A,B,C
+a,b
+a
+A->b A|b B
+B->A b|C|B a
+C->a
