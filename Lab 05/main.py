@@ -92,6 +92,22 @@ class Grammar:
         return state, index, workingStack, inputStack
 
     def advance(self, state, index, workingStack, inputStack):
+        """
+        Advance function
+        :param state: a char
+            :pre: 'q'
+            :post: 'q'
+        :param index: integer
+            :pre: some integer i
+            :post: i + 1
+        :param workingStack: a list, representing the working stack, stores the way the parse is built
+            :pre: some list W
+            :post: list W U a, where a is the first terminal from the input stack
+        :param inputStack: a list, representing  input stack, part of the tree to be built
+            :pre: a U I, where a is a terminal and I is a list
+            :post: I
+        :return: a configuration, all input params but updated
+        """
         assert state == 'q'
         assert inputStack[0] in self.__terminals
 
