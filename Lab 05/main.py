@@ -37,7 +37,7 @@ class Grammar:
         """
         Print some attributes of Grammar
         :param x: char, representing an option in order to know what to return
-        :param nonterminal: string, a nonterminal, production starting from it will be printed
+        :param nonterminal: string, a nonterminal, production starting from it will be printed, is optional
         :preconditions: x must be a string, x is from A = {'1', '2', '3', '4'}
         :postconditions: a string is returned, representing an attribute as a string, or '' if x is not in A
         :return: a string
@@ -60,15 +60,113 @@ class Grammar:
             return out
         return ''
 
+    def expand(self, state, index, workingStack, inputStack):
+        """
+        Expand function
+        :param state: a char
+            :pre: 'q'
+            :post: 'q'
+        :param index: integer
+            :pre: some integer i
+            :post: same i
+        :param workingStack: a list, representing the working stack, stores the way the parse is built
+            :pre: some list W
+            :post: list W U A_0, where A_0 is a name for first prod of non-terminal A
+        :param inputStack: a list, representing  input stack, part of the tree to be built
+            :pre: A U I, where A is a non-terminal and I is a list
+            :post: first prod of A U I
+        :return: a configuration, all input params but updated
+        """
+        assert state == 'q'
+        assert inputStack[0] in self.__nonTerminals
+
+        workingStackLen = len(workingStack)
+        inputStackLen = len(inputStack)
+        headOfInputStack = inputStack[0]
+        workingStack.append(str(headOfInputStack) + '_0')
+        inputStack[0] = self.__productions[headOfInputStack][0] #get first production
+
+        assert workingStackLen == len(workingStack) + 1
+        assert inputStackLen == len(inputStack)
+
+        return state, index, workingStack, inputStack
+
+    def advance(self, state, index, workingStack, inputStack):
+        assert state == 'q'
+        assert inputStack[0] in self.__terminals
+
+        workingStackLen = len(workingStack)
+        inputStackLen = len(inputStack)
+        headOfInputStack = inputStack[0]
+        inputStack = inputStack[1:]
+        workingStack.append(headOfInputStack)
+
+        assert workingStackLen == len(workingStack) + 1
+        assert inputStackLen == len(inputStack) - 1
+
+        return state, index + 1, workingStack, inputStack
+
+    def momentaryInsuccess(self, state, index, workingStack, inputStack):
+        assert state == 'q'
+        assert inputStack[0] in self.__terminals
+
+        return 'b', index, workingStack, inputStack
+
+    def back(self, state, index, workingStack, inputStack):
+        assert state == 'b'
+        assert workingStack[-1] in self.__terminals
+
+        workingStackLen = len(workingStack)
+        inputStackLen = len(inputStack)
+        headOfWorkingStack = workingStack[-1]
+        workingStack = workingStack[:-1]
+        inputStack = [headOfWorkingStack] + inputStack
+
+        assert workingStackLen == len(workingStack) - 1
+        assert inputStackLen == len(inputStack) + 1
+
+        return state, index - 1, workingStack, inputStack
+
+    def anotherTry(self, state, index, workingStack, inputStack):
+        assert state == 'b'
+
+        workingStackLen = len(workingStack)
+        inputStackLen = len(inputStack)
+        headOfWorkingStack, j = workingStack[-1].split('_')
+        if j + 1 < len(self.__productions[headOfWorkingStack]):
+            j += 1
+            workingStack[-1] = str(headOfWorkingStack) + '_' + str(j)
+            inputStack[0] = self.__productions[headOfWorkingStack][j]  # get production j
+
+            assert workingStackLen == len(workingStack)
+            assert inputStackLen == len(inputStack)
+
+            return 'q', index, workingStack, inputStack
+        elif index == 1 and headOfWorkingStack == self.__startSymbol:
+            return 'e', index, workingStack, inputStack
+        else:
+            inputStack[0] = headOfWorkingStack
+            workingStack = workingStack[:-1]
+
+            assert workingStackLen == len(workingStack) - 1
+            assert inputStackLen == len(inputStack)
+
+            return 'b', index, workingStack, inputStack
+
+    def success(self, state, index, workingStack, inputStack):
+        assert state == 'q'
+        assert len(inputStack) == 0
+
+        return 'f', index, workingStack, inputStack
 
 
 if __name__ == '__main__':
     g = Grammar()
-    g.readGrammar('g2.txt')
+    g.readGrammar('g1.txt')
     while 1:
         print('Choose a number:')
         print('\t0.Exit')
-        print('\t1.Print the set of nonterminal symbols')
+        print('\t1.Print the set of non-terminal symbols')
         print('\t2.Print the set of terminal symbols')
         print('\t3.Print the set of productions')
         print('\t4.Print the set of final states for a non terminal')
@@ -76,7 +174,7 @@ if __name__ == '__main__':
         if x == '0':
             break
         elif x == '4':
-            nonterminal = input('Give the nonterminal:')
-            print(g.print(x, nonterminal))
+            non_terminal = input('Give the non-terminal:')
+            print(g.print(x, non_terminal))
         else:
             print(g.print(x))
