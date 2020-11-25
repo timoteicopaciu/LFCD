@@ -104,7 +104,7 @@ class Grammar:
             :pre: some list W
             :post: list W U a, where a is the first terminal from the input stack
         :param inputStack: a list, representing  input stack, part of the tree to be built
-            :pre: a U I, where a is a terminal and I is a list
+            :pre: a U I, where a is a terminal, a terminal = current symbol from input, and I is a list
             :post: I
         :return: a configuration, all input params but updated
         """
@@ -123,12 +123,44 @@ class Grammar:
         return state, index + 1, workingStack, inputStack
 
     def momentaryInsuccess(self, state, index, workingStack, inputStack):
+        """
+        MomentaryInsuccess function
+        :param state: a char
+            :pre: 'q'
+            :post: 'b' back/previous state
+        :param index: integer
+            :pre: some integer i
+            :post: same i
+        :param workingStack: a list, representing the working stack, stores the way the parse is built
+            :pre: some list W
+            :post: same W
+        :param inputStack: a list, representing  input stack, part of the tree to be built
+            :pre: a U I, where a is a terminal and I is a list, a is different from current symbol from input
+            :post: same a U I
+        :return: a configuration, all input params but updated
+        """
         assert state == 'q'
         assert inputStack[0] in self.__terminals
 
         return 'b', index, workingStack, inputStack
 
     def back(self, state, index, workingStack, inputStack):
+        """
+       Back function
+       :param state: a char
+           :pre: 'b'
+           :post: 'b'
+       :param index: integer
+           :pre: some integer i
+           :post: i - 1
+       :param workingStack: a list, representing the working stack, stores the way the parse is built
+           :pre: some list W U a, where a is a terminal
+           :post: list W, without terminal a
+       :param inputStack: a list, representing  input stack, part of the tree to be built
+           :pre: I
+           :post: a U I, where a is a terminal and I is a list
+       :return: a configuration, all input params but updated
+       """
         assert state == 'b'
         assert workingStack[-1] in self.__terminals
 
@@ -144,6 +176,22 @@ class Grammar:
         return state, index - 1, workingStack, inputStack
 
     def anotherTry(self, state, index, workingStack, inputStack):
+        """
+       AntoherTry function
+       :param state: a char
+           :pre: 'b'
+           :post: 'q' or 'b' or 'e'
+       :param index: integer
+           :pre: some integer i
+           :post: same i
+       :param workingStack: a list, representing the working stack, stores the way the parse is built
+           :pre: list W U A_j, where A_j is a name for the j-th prod of non-terminal A
+           :post: list W U A_j+1 or just W
+       :param inputStack: a list, representing  input stack, part of the tree to be built
+           :pre: j-th prod of A U I
+           :post: j+1-th prod of A U I or A or just I
+       :return: a configuration, all input params but updated
+       """
         assert state == 'b'
 
         workingStackLen = len(workingStack)
@@ -170,6 +218,22 @@ class Grammar:
             return 'b', index, workingStack, inputStack
 
     def success(self, state, index, workingStack, inputStack):
+        """
+       Success function
+       :param state: a char
+           :pre: 'q'
+           :post: 'f'
+       :param index: integer
+           :pre: some integer (n + 1)
+           :post: same integer (n + 1)
+       :param workingStack: a list, representing the working stack, stores the way the parse is built
+           :pre: some list W
+           :post: same list W
+       :param inputStack: a list, representing  input stack, part of the tree to be built
+           :pre: empty list
+           :post: empty list
+       :return: a configuration, all input params but updated
+       """
         assert state == 'q'
         assert len(inputStack) == 0
 
