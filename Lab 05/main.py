@@ -5,6 +5,7 @@ class Grammar:
         self.__terminals = []
         self.__startSymbol = None
         self.__productions = {}
+        self.__word = ''
 
     def readGrammar(self, filename):
         """
@@ -84,10 +85,11 @@ class Grammar:
         inputStackLen = len(inputStack)
         headOfInputStack = inputStack[0]
         workingStack.append(str(headOfInputStack) + '_0')
-        inputStack[0] = self.__productions[headOfInputStack][0] #get first production
+        inputStack = self.__productions[headOfInputStack][0].split(' ') + inputStack[1:]
+        # inputStack[0] = self.__productions[headOfInputStack][0] #get first production
 
-        assert workingStackLen == len(workingStack) + 1
-        assert inputStackLen == len(inputStack)
+        assert workingStackLen + 1 == len(workingStack)
+        # assert inputStackLen == len(inputStack)
 
         return state, index, workingStack, inputStack
 
@@ -117,8 +119,8 @@ class Grammar:
         inputStack = inputStack[1:]
         workingStack.append(headOfInputStack)
 
-        assert workingStackLen == len(workingStack) + 1
-        assert inputStackLen == len(inputStack) - 1
+        assert workingStackLen + 1 == len(workingStack)
+        assert inputStackLen -1 == len(inputStack)
 
         return state, index + 1, workingStack, inputStack
 
@@ -170,8 +172,8 @@ class Grammar:
         workingStack = workingStack[:-1]
         inputStack = [headOfWorkingStack] + inputStack
 
-        assert workingStackLen == len(workingStack) - 1
-        assert inputStackLen == len(inputStack) + 1
+        assert workingStackLen - 1 == len(workingStack)
+        assert inputStackLen + 1== len(inputStack)
 
         return state, index - 1, workingStack, inputStack
 
@@ -197,13 +199,15 @@ class Grammar:
         workingStackLen = len(workingStack)
         inputStackLen = len(inputStack)
         headOfWorkingStack, j = workingStack[-1].split('_')
+        j = int(j)
         if j + 1 < len(self.__productions[headOfWorkingStack]):
             j += 1
             workingStack[-1] = str(headOfWorkingStack) + '_' + str(j)
-            inputStack[0] = self.__productions[headOfWorkingStack][j]  # get production j
+            len_prev = len(self.__productions[headOfWorkingStack][j - 1].split(' '))
+            inputStack = self.__productions[headOfWorkingStack][j].split(' ') +  inputStack[len_prev:] # get production j
 
             assert workingStackLen == len(workingStack)
-            assert inputStackLen == len(inputStack)
+            # assert inputStackLen == len(inputStack)
 
             return 'q', index, workingStack, inputStack
         elif index == 1 and headOfWorkingStack == self.__startSymbol:
@@ -212,8 +216,8 @@ class Grammar:
             inputStack[0] = headOfWorkingStack
             workingStack = workingStack[:-1]
 
-            assert workingStackLen == len(workingStack) - 1
-            assert inputStackLen == len(inputStack)
+            assert workingStackLen - 1 == len(workingStack)
+            # assert inputStackLen == len(inputStack)
 
             return 'b', index, workingStack, inputStack
 
@@ -239,10 +243,68 @@ class Grammar:
 
         return 'f', index, workingStack, inputStack
 
+    def setWord(self,word):
+        self.__word = word
+
+    def getStartSymbol(self):
+        return self.__startSymbol
+
+    def parse(self, state, index, workingStack, inputStack):
+        """
+         This function parse the word set in self.__word item and check if is a accepted sequence using recursion
+         :param state: a char
+             :pre: 'q'
+             :post: any state
+         :param index: integer
+             :pre: 0
+             :post: some integer
+         :param workingStack: a list, representing the working stack, stores the way the parse is built
+             :pre: []
+             :post: same list W
+         :param inputStack: a list, representing  input stack, part of the tree to be built
+             :pre: a list containing just starting symbol
+             :post: empty list
+         :return: a configuration, all input params but updated
+         """
+        if state == 'f':
+            print('Success!', index, workingStack, inputStack)
+            return 0
+        elif state == 'e':
+            print("Error!", index, workingStack, inputStack)
+            return 0
+        elif len(inputStack) == 0:
+            state, index, workingStack, inputStack = self.success(state, index, workingStack, inputStack)
+            print('Succes', state, index, workingStack, inputStack)
+            return self.parse(state, index, workingStack, inputStack)
+        elif state == 'q' and len(inputStack) > 0 and inputStack[0] in self.__nonTerminals:
+            state,index,workingStack,inputStack = self.expand(state, index, workingStack, inputStack)
+            print('Expand', state, index, workingStack, inputStack)
+            return self.parse(state, index, workingStack, inputStack)
+        elif state == 'q' and len(inputStack) > 0 and inputStack[0] in self.__terminals and index < len(self.__word) and inputStack[0] == self.__word[index]:
+            state, index, workingStack, inputStack = self.advance(state, index, workingStack, inputStack)
+            print('Advance', state, index, workingStack, inputStack)
+            return self.parse(state, index, workingStack, inputStack)
+        elif state == 'q' and len(inputStack) > 0 and inputStack[0] in self.__terminals and (index >= len(self.__word) or inputStack[0] != self.__word[index]):
+            state, index, workingStack, inputStack = self.momentaryInsuccess(state, index, workingStack, inputStack)
+            print('Momentary Insuccess', state, index, workingStack, inputStack)
+            return self.parse(state, index, workingStack, inputStack)
+        elif state == 'b' and workingStack[-1] in self.__terminals:
+            state, index, workingStack, inputStack = self.back(state, index, workingStack, inputStack)
+            print('Back', state, index, workingStack, inputStack)
+            return self.parse(state, index, workingStack, inputStack)
+        elif state == 'b' and workingStack[-1].split('_')[0] in self.__nonTerminals:
+            state, index, workingStack, inputStack = self.anotherTry(state, index, workingStack, inputStack)
+            print('Another Try', state, index, workingStack, inputStack)
+            return self.parse(state, index, workingStack, inputStack)
+        else:
+            return 0
+
+
 
 if __name__ == '__main__':
     g = Grammar()
     g.readGrammar('g1.txt')
+
     while 1:
         print('Choose a number:')
         print('\t0.Exit')
@@ -250,11 +312,16 @@ if __name__ == '__main__':
         print('\t2.Print the set of terminal symbols')
         print('\t3.Print the set of productions')
         print('\t4.Print the set of final states for a non terminal')
+        print('\t5.Parse word')
         x = input()
         if x == '0':
             break
         elif x == '4':
             non_terminal = input('Give the non-terminal:')
             print(g.print(x, non_terminal))
+        elif x == '5':
+            word = input('Give the word to be parsed:')
+            g.setWord(word)
+            g.parse('q', 0, [], [g.getStartSymbol()])
         else:
             print(g.print(x))
