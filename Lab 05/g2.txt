@@ -1,21 +1,22 @@
-program,declarationList,declaration,type,mainTypes,arraysDecl,operator,expression,RELATION,stmtList,stmt,assignStmt,inStmt,outStmt,ifStmt,whileStmt,forStmt,condition
-1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34
+program,declarationList,declaration,declarationBody,type,mainTypes,arraysDecl,operator,expression,RELATION,stmtList,stmt,assignStmt,inStmt,outStmt,ifStmt,whileStmt,forStmt,condition
+main identifier constant define Integer Char while for if else in.Integer in.Chars out + - * / % >> <= >= == != = < > [ ] { } ( ) ; ,
 program
-program->declarationList 33 stmtList
+program->declarationList|declarationList stmtList
 declarationList->declaration declarationList|declaration
-declaration->4 type {2 34} 2 33
+declaration->define type declarationBody
+declarationBody->identifier , declarationBody|identifier ;
 type->mainTypes|arrayDecl
-mainTypes->5|6
-arraysDecl->mainTypes 27 nr 28
-operator->14|15|16|17|18
-expression->expression operator 3|2 operator 3|expression operator 2|2 operator 2|2|3|2 27 2 28
-RELATION->25|20|22|23|21|26
-stmtList->stmt 33| stmt 33 stmtList
+mainTypes->Integer|Char
+arraysDecl->mainTypes [ nr ]
+operator->+|-|*|/|%
+expression->expression operator constant|identifier operator constant|expression operator identifier|identifier operator identifier|identifier|constant|identifier [ identifier ]
+RELATION-><|<=|==|!=|>=|>
+stmtList->stmt ;| stmt ; stmtList
 stmt->assignStmt|inStmt|outStmt|ifStmt|whileStmt|forStmt
-assignStmt->IDENTIFIER 24 expression
-inStmt->11 19 2|12 19 2
-outStmt->13 31 text 32|12 31 2 32
-ifStmt->9 31 condition 32 29 stmtList 30|9 31 condition 32 29 stmtList 30 10 29 stmtList 30
-whileStmt->7 31 condition 32 29 stmtList 30
-forStmt->8 31 2 34 expression 34 expression 34 numericalConstant 32 29 stmtList 30
+assignStmt->IDENTIFIER = expression
+inStmt->in.Integer >> identifier|in.Chars >> identifier
+outStmt->out ( text )|out ( identifier )
+ifStmt->if ( condition ) { stmtList }|if ( condition ) { stmtList } else { stmtList }
+whileStmt->while ( condition ) { stmtList }
+forStmt->for ( identifier , expression , expression , numericalConstant ) { stmtList }
 condition->expression RELATION expression

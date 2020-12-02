@@ -21,7 +21,7 @@ class Grammar:
         self.__nonTerminals = line.split(',')
         line = fin.readline()
         line = line.strip(' \n')
-        self.__terminals = line.split(',')
+        self.__terminals = line.split(' ')
         line = fin.readline()
         line = line.strip(' \n')
         self.__startSymbol = line
@@ -264,15 +264,14 @@ class Grammar:
          :param inputStack: a list, representing  input stack, part of the tree to be built
              :pre: a list containing just starting symbol
              :post: empty list
-         :return: a configuration, all input params but updated
+         :return: a ParserOutput object
          """
         if state == 'f':
             print('Success!', index, workingStack, inputStack)
-            self.buildParserOutput(workingStack)
-            return 0
+            return self.buildParserOutput(workingStack)
         elif state == 'e':
             print("Error!", index, workingStack, inputStack)
-            return 0
+            return ParserOutput([])
         elif len(inputStack) == 0:
             state, index, workingStack, inputStack = self.success(state, index, workingStack, inputStack)
             print('Succes', state, index, workingStack, inputStack)
@@ -298,7 +297,7 @@ class Grammar:
             print('Another Try', state, index, workingStack, inputStack)
             return self.parse(state, index, workingStack, inputStack)
         else:
-            return 0
+            return ParserOutput([])
 
     def buildParserOutput(self, workingStack):
         """
@@ -314,9 +313,48 @@ class Grammar:
                 lastDerivation = derivationsString[-1]
                 index = lastDerivation.index(non_terminal)
                 derivationsString.append(lastDerivation[:index] + self.__productions[non_terminal][productionIndex].split(' ') + lastDerivation[index + 1:])
-        print(derivationsString)
-        return derivationsString
 
+        return ParserOutput(derivationsString)
+
+class ParserOutput:
+    """
+    Represent the output of a parser as a derivations string
+    """
+    def __init__(self, derivationString):
+        self.__derivationString = derivationString
+
+    def toString(self):
+        """
+        Represent the parser output object as a string
+        :return: a string, representing the parser output object as a string
+        """
+        out = ''
+        nrOfCurrentDerivationString = 0
+        derivationStringLen = len(self.__derivationString)
+        for ds in self.__derivationString:
+            nrOfCurrentDerivationString += 1
+            for el in ds:
+                out = out + str(el) + " "
+            if nrOfCurrentDerivationString < derivationStringLen:
+                out = out + "=> "
+        return out
+
+    def printToConsole(self):
+        """
+        Print to the console the out of the parser as a derivations string
+        :return: None
+        """
+        print('The derivations string is:\n' + self.toString())
+
+    def printToFile(self, filename):
+        """
+        Print to the file the out of the parser as a derivations string
+        :param filename: a string, representing the name of the file where the result to be printed,
+            if the file does not exist, then will be created
+        :return: None
+        """
+        with open(filename, "w") as file:
+            file.write('The derivations string is:\n' + self.toString())
 
 
 
@@ -342,6 +380,8 @@ if __name__ == '__main__':
             word = input('Give the word to be parsed:')
             word = word.split(' ')
             g.setWord(word)
-            g.parse('q', 0, [], [g.getStartSymbol()])
+            parserOutput = g.parse('q', 0, [], [g.getStartSymbol()])
+            parserOutput.printToConsole()
+            parserOutput.printToFile("output.txt")
         else:
             print(g.print(x))
