@@ -268,6 +268,7 @@ class Grammar:
          """
         if state == 'f':
             print('Success!', index, workingStack, inputStack)
+            self.buildParserOutput(workingStack)
             return 0
         elif state == 'e':
             print("Error!", index, workingStack, inputStack)
@@ -299,6 +300,24 @@ class Grammar:
         else:
             return 0
 
+    def buildParserOutput(self, workingStack):
+        """
+        This function make an object of type ParserOutput from the working stack given as result of parser
+        :param workingStack: a list, the working stack given as result from parser
+        :return: an object of type ParserOutput
+        """
+        derivationsString = [[self.__startSymbol]]
+        for x in workingStack:
+            if '_' in x:
+                non_terminal, productionIndex = x.split('_')
+                productionIndex = int(productionIndex)
+                lastDerivation = derivationsString[-1]
+                index = lastDerivation.index(non_terminal)
+                derivationsString.append(lastDerivation[:index] + self.__productions[non_terminal][productionIndex].split(' ') + lastDerivation[index + 1:])
+        print(derivationsString)
+        return derivationsString
+
+
 
 
 if __name__ == '__main__':
@@ -321,6 +340,7 @@ if __name__ == '__main__':
             print(g.print(x, non_terminal))
         elif x == '5':
             word = input('Give the word to be parsed:')
+            word = word.split(' ')
             g.setWord(word)
             g.parse('q', 0, [], [g.getStartSymbol()])
         else:
