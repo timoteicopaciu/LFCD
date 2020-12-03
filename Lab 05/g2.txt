@@ -1,22 +1,22 @@
-program,declarationList,declaration,declarationBody,type,mainTypes,arraysDecl,operator,expression,RELATION,stmtList,stmt,assignStmt,inStmt,outStmt,ifStmt,whileStmt,forStmt,condition
-main identifier constant define Integer Char while for if else in.Integer in.Chars out + - * / % >> <= >= == != = < > [ ] { } ( ) ; ,
+program,declarationList,declaration,declarationBody,type,mainTypes,arrayDeclaration,operator,expression,RELATION,stmtList,stmt,assignStmt,inStmt,outStmt,ifStmt,whileStmt,forStmt,condition
+main IDENTIFIER CONSTANT define Integer Char while for if else in.Integer in.Chars out + - * / % >> <= >= == != = < > [ ] { } ( ) ; ,
 program
 program->declarationList|declarationList stmtList
-declarationList->declaration declarationList|declaration
+declarationList->declaration|declaration declarationList
 declaration->define type declarationBody
-declarationBody->identifier , declarationBody|identifier ;
-type->mainTypes|arrayDecl
+declarationBody->IDENTIFIER ;|IDENTIFIER , declarationBody
+type->mainTypes|arrayDeclaration
 mainTypes->Integer|Char
-arraysDecl->mainTypes [ nr ]
+arrayDeclaration->mainTypes [ numericalCONSTANT ]
 operator->+|-|*|/|%
-expression->expression operator constant|identifier operator constant|expression operator identifier|identifier operator identifier|identifier|constant|identifier [ identifier ]
+expression->expression operator CONSTANT|IDENTIFIER operator CONSTANT|expression operator IDENTIFIER|IDENTIFIER operator IDENTIFIER|IDENTIFIER|CONSTANT|IDENTIFIER [ IDENTIFIER ]
 RELATION-><|<=|==|!=|>=|>
 stmtList->stmt ;| stmt ; stmtList
 stmt->assignStmt|inStmt|outStmt|ifStmt|whileStmt|forStmt
 assignStmt->IDENTIFIER = expression
-inStmt->in.Integer >> identifier|in.Chars >> identifier
-outStmt->out ( text )|out ( identifier )
+inStmt->in.Integer >> IDENTIFIER|in.Chars >> IDENTIFIER
+outStmt->out ( text )|out ( IDENTIFIER )
 ifStmt->if ( condition ) { stmtList }|if ( condition ) { stmtList } else { stmtList }
 whileStmt->while ( condition ) { stmtList }
-forStmt->for ( identifier , expression , expression , numericalConstant ) { stmtList }
+forStmt->for ( IDENTIFIER , expression , expression , numericalCONSTANT ) { stmtList }
 condition->expression RELATION expression

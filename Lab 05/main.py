@@ -141,8 +141,6 @@ class Grammar:
             :post: same a U I
         :return: a configuration, all input params but updated
         """
-        assert state == 'q'
-        assert inputStack[0] in self.__terminals
 
         return 'b', index, workingStack, inputStack
 
@@ -173,7 +171,7 @@ class Grammar:
         inputStack = [headOfWorkingStack] + inputStack
 
         assert workingStackLen - 1 == len(workingStack)
-        assert inputStackLen + 1== len(inputStack)
+        assert inputStackLen + 1 == len(inputStack)
 
         return state, index - 1, workingStack, inputStack
 
@@ -210,10 +208,11 @@ class Grammar:
             # assert inputStackLen == len(inputStack)
 
             return 'q', index, workingStack, inputStack
-        elif index == 1 and headOfWorkingStack == self.__startSymbol:
+        elif index == 0 and headOfWorkingStack == self.__startSymbol:
             return 'e', index, workingStack, inputStack
         else:
-            inputStack[0] = headOfWorkingStack
+            len_prev = len(self.__productions[headOfWorkingStack][j].split(' '))
+            inputStack = [headOfWorkingStack] + inputStack[len_prev:]
             workingStack = workingStack[:-1]
 
             assert workingStackLen - 1 == len(workingStack)
@@ -267,37 +266,44 @@ class Grammar:
          :return: a ParserOutput object
          """
         if state == 'f':
-            print('Success!', index, workingStack, inputStack)
             return self.buildParserOutput(workingStack)
+
         elif state == 'e':
-            print("Error!", index, workingStack, inputStack)
-            return ParserOutput([])
-        elif len(inputStack) == 0:
+            return ParserOutput(['Error!'])
+
+        elif state == 'q' and index == len(word) and len(inputStack) == 0:
             state, index, workingStack, inputStack = self.success(state, index, workingStack, inputStack)
-            print('Succes', state, index, workingStack, inputStack)
+            print('Success', state, index, workingStack, inputStack)
             return self.parse(state, index, workingStack, inputStack)
-        elif state == 'q' and len(inputStack) > 0 and inputStack[0] in self.__nonTerminals:
+
+        elif state == 'q' and len(inputStack) != 0 and inputStack[0] in self.__nonTerminals:
             state,index,workingStack,inputStack = self.expand(state, index, workingStack, inputStack)
             print('Expand', state, index, workingStack, inputStack)
             return self.parse(state, index, workingStack, inputStack)
-        elif state == 'q' and len(inputStack) > 0 and inputStack[0] in self.__terminals and index < len(self.__word) and inputStack[0] == self.__word[index]:
+
+        elif state == 'q' and len(inputStack) != 0 and inputStack[0] in self.__terminals and index < len(self.__word) and inputStack[0] == self.__word[index]:
             state, index, workingStack, inputStack = self.advance(state, index, workingStack, inputStack)
             print('Advance', state, index, workingStack, inputStack)
             return self.parse(state, index, workingStack, inputStack)
-        elif state == 'q' and len(inputStack) > 0 and inputStack[0] in self.__terminals and (index >= len(self.__word) or inputStack[0] != self.__word[index]):
+
+        elif state == 'q' and (len(inputStack) == 0 or (inputStack[0] in self.__terminals and (index >= len(self.__word) or inputStack[0] != self.__word[index]))):
             state, index, workingStack, inputStack = self.momentaryInsuccess(state, index, workingStack, inputStack)
             print('Momentary Insuccess', state, index, workingStack, inputStack)
             return self.parse(state, index, workingStack, inputStack)
+
         elif state == 'b' and workingStack[-1] in self.__terminals:
             state, index, workingStack, inputStack = self.back(state, index, workingStack, inputStack)
             print('Back', state, index, workingStack, inputStack)
             return self.parse(state, index, workingStack, inputStack)
-        elif state == 'b' and workingStack[-1].split('_')[0] in self.__nonTerminals:
+
+        elif state == 'b' and '_' in workingStack[-1] and workingStack[-1].split('_')[0] in self.__nonTerminals:
             state, index, workingStack, inputStack = self.anotherTry(state, index, workingStack, inputStack)
             print('Another Try', state, index, workingStack, inputStack)
             return self.parse(state, index, workingStack, inputStack)
+
         else:
-            return ParserOutput([])
+            state = 'e'
+            return self.parse(state, index, workingStack, inputStack)
 
     def buildParserOutput(self, workingStack):
         """
@@ -360,7 +366,7 @@ class ParserOutput:
 
 if __name__ == '__main__':
     g = Grammar()
-    g.readGrammar('g1.txt')
+    g.readGrammar('g2.txt')
 
     while 1:
         print('Choose a number:')

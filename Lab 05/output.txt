@@ -1,2 +1,2 @@
 The derivations string is:
-S => a S b S => a a S b S => a a c b S => a a c b c 
+program => declarationList stmtList => declaration stmtList => define type declarationBody stmtList => define mainTypes declarationBody stmtList => define Integer declarationBody stmtList => define Integer IDENTIFIER , declarationBody stmtList => define Integer IDENTIFIER , IDENTIFIER ; stmtList => define Integer IDENTIFIER , IDENTIFIER ; stmt ; => define Integer IDENTIFIER , IDENTIFIER ; inStmt ; => define Integer IDENTIFIER , IDENTIFIER ; in.Chars >> IDENTIFIER ; 
