@@ -1,0 +1,5 @@
+The word to be matched is:
+['a', 'a', 'c', 'b', 'c', 'a']
+Max sequence that was matched is:
+['a', 'a', 'c', 'b', 'c']
+E r r o r ! 

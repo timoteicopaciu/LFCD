@@ -248,7 +248,7 @@ class Grammar:
     def getStartSymbol(self):
         return self.__startSymbol
 
-    def parse(self, state, index, workingStack, inputStack):
+    def parse(self, state, index, workingStack, inputStack, out, maxIndex):
         """
          This function parse the word set in self.__word item and check if is a accepted sequence using recursion
          :param state: a char
@@ -263,47 +263,54 @@ class Grammar:
          :param inputStack: a list, representing  input stack, part of the tree to be built
              :pre: a list containing just starting symbol
              :post: empty list
+         :param out: a file descriptor to the file where the track of operations to be printed
+             :pre: a file descriptor
+             :post: same file descriptor
+         :param maxIndex: a number, integer, representing an index in word, the best parse matches all untill that index in word
          :return: a ParserOutput object
          """
         if state == 'f':
-            return self.buildParserOutput(workingStack)
+            return self.buildParserOutput(workingStack), maxIndex
 
         elif state == 'e':
-            return ParserOutput(['Error!'])
+            return ParserOutput(['Error!']), maxIndex
 
         elif state == 'q' and index == len(word) and len(inputStack) == 0:
             state, index, workingStack, inputStack = self.success(state, index, workingStack, inputStack)
-            print('Success', state, index, workingStack, inputStack)
-            return self.parse(state, index, workingStack, inputStack)
+            out.write('Success ' + str(state) + ', ' + str(index) + ', ' + str(workingStack) + ', ' + str(inputStack) + ', maxIndex=' + str(maxIndex) + '\n')
+            return self.parse(state, index, workingStack, inputStack, out, max(index, maxIndex))
 
         elif state == 'q' and len(inputStack) != 0 and inputStack[0] in self.__nonTerminals:
             state,index,workingStack,inputStack = self.expand(state, index, workingStack, inputStack)
-            print('Expand', state, index, workingStack, inputStack)
-            return self.parse(state, index, workingStack, inputStack)
+            out.write('Expand ' + str(state) + ', ' + str(index) + ', ' + str(workingStack) + ', ' + str(inputStack) + ', maxIndex=' + str(maxIndex) + '\n')
+            return self.parse(state, index, workingStack, inputStack, out, max(index, maxIndex))
 
         elif state == 'q' and len(inputStack) != 0 and inputStack[0] in self.__terminals and index < len(self.__word) and inputStack[0] == self.__word[index]:
             state, index, workingStack, inputStack = self.advance(state, index, workingStack, inputStack)
-            print('Advance', state, index, workingStack, inputStack)
-            return self.parse(state, index, workingStack, inputStack)
+            out.write('Advance ' + str(state) + ', ' + str(index) + ', ' + str(workingStack) + ', ' + str(inputStack) + ', maxIndex=' + str(maxIndex) + '\n')
+            return self.parse(state, index, workingStack, inputStack, out, max(index, maxIndex))
 
         elif state == 'q' and (len(inputStack) == 0 or (inputStack[0] in self.__terminals and (index >= len(self.__word) or inputStack[0] != self.__word[index]))):
             state, index, workingStack, inputStack = self.momentaryInsuccess(state, index, workingStack, inputStack)
-            print('Momentary Insuccess', state, index, workingStack, inputStack)
-            return self.parse(state, index, workingStack, inputStack)
+            out.write(
+                'Momentary Insuccess ' + str(state) + ', ' + str(index) + ', ' + str(workingStack) + ', ' + str(inputStack) + ', maxIndex=' + str(maxIndex) + '\n')
+            return self.parse(state, index, workingStack, inputStack, out, max(index, maxIndex))
 
         elif state == 'b' and workingStack[-1] in self.__terminals:
             state, index, workingStack, inputStack = self.back(state, index, workingStack, inputStack)
-            print('Back', state, index, workingStack, inputStack)
-            return self.parse(state, index, workingStack, inputStack)
+            out.write(
+                'Back ' + str(state) + ', ' + str(index) + ', ' + str(workingStack) + ', ' + str(inputStack) + ', maxIndex=' + str(maxIndex) + '\n')
+            return self.parse(state, index, workingStack, inputStack, out, max(index, maxIndex))
 
         elif state == 'b' and '_' in workingStack[-1] and workingStack[-1].split('_')[0] in self.__nonTerminals:
             state, index, workingStack, inputStack = self.anotherTry(state, index, workingStack, inputStack)
-            print('Another Try', state, index, workingStack, inputStack)
-            return self.parse(state, index, workingStack, inputStack)
+            out.write(
+                'Another Try ' + str(state) + ', ' + str(index) + ', ' + str(workingStack) + ', ' + str(inputStack) + ', maxIndex=' + str(maxIndex) + '\n')
+            return self.parse(state, index, workingStack, inputStack, out, max(index, maxIndex))
 
         else:
             state = 'e'
-            return self.parse(state, index, workingStack, inputStack)
+            return self.parse(state, index, workingStack, inputStack, out, max(index, maxIndex))
 
     def buildParserOutput(self, workingStack):
         """
@@ -350,44 +357,88 @@ class ParserOutput:
         Print to the console the out of the parser as a derivations string
         :return: None
         """
-        print('The derivations string is:\n' + self.toString())
+        if self.__derivationString == ['Error!']:
+            print(self.toString())
+        else:
+            print('The derivations string is:\n' + self.toString())
 
-    def printToFile(self, filename):
+    def printToFile(self, file):
         """
         Print to the file the out of the parser as a derivations string
-        :param filename: a string, representing the name of the file where the result to be printed,
-            if the file does not exist, then will be created
+        :param file: a file descriptor, representing the file where to write
         :return: None
         """
-        with open(filename, "w") as file:
+
+        if self.__derivationString == ['Error!']:
+            file.write(self.toString())
+        else:
             file.write('The derivations string is:\n' + self.toString())
 
 
 
 if __name__ == '__main__':
-    g = Grammar()
-    g.readGrammar('g2.txt')
+    g1 = Grammar()
+    g1.readGrammar('g1.txt')
 
+    g2 = Grammar()
+    g2.readGrammar('g2.txt')
     while 1:
         print('Choose a number:')
         print('\t0.Exit')
-        print('\t1.Print the set of non-terminal symbols')
-        print('\t2.Print the set of terminal symbols')
-        print('\t3.Print the set of productions')
-        print('\t4.Print the set of final states for a non terminal')
-        print('\t5.Parse word')
+        print('\t1.Print the set of non-terminal symbols for grammar from g1.txt')
+        print('\t2.Print the set of terminal symbols for grammar from g1.txt')
+        print('\t3.Print the set of productions for grammar from g1.txt')
+        print('\t4.Print the set of final states for a non terminal for grammar from g1.txt')
+        print('\t5.Parse word from seq.txt with grammar from g1.txt')
+        print('\t6.Print the set of non-terminal symbols for grammar from g2.txt')
+        print('\t7.Print the set of terminal symbols for grammar from g2.txt')
+        print('\t8.Print the set of productions for grammar from g2.txt')
+        print('\t9.Print the set of final states for a non terminal for grammar from g2.txt')
+        print('\t10.Parse word from PIF.out with grammar from g2.txt')
         x = input()
         if x == '0':
             break
         elif x == '4':
             non_terminal = input('Give the non-terminal:')
-            print(g.print(x, non_terminal))
+            print(g1.print(x, non_terminal))
         elif x == '5':
-            word = input('Give the word to be parsed:')
+            out1 = open('out1.txt', 'w')
+            fin = open('seq.txt', 'r')
+            out = open('track.out', 'w')
+            word = fin.readline()
             word = word.split(' ')
-            g.setWord(word)
-            parserOutput = g.parse('q', 0, [], [g.getStartSymbol()])
-            parserOutput.printToConsole()
-            parserOutput.printToFile("output.txt")
+            fin.close()
+            out1.write('The word to be matched is:\n' + str(word) + '\n')
+            g1.setWord(word)
+            parserOutput, maxIndex = g1.parse('q', 0, [], [g1.getStartSymbol()], out, -1)
+            out1.write("Max sequence that was matched is:\n" + str(word[:maxIndex]) + '\n')
+            parserOutput.printToFile(out1)
+            out1.close()
+            out.close()
+        elif x == '1' or x == '2' or x == '3':
+            print(g1.print(x))
+        elif x == '9':
+            non_terminal = input('Give the non-terminal:')
+            print(g2.print(x, non_terminal))
+        elif x == '10':
+            out2 = open('out2.txt', 'w')
+            fin = open('PIF.out', 'r')
+            word = []
+            line = fin.readline()
+            while len(line) != 0:
+                word.append(line.split(' ')[0])
+                line = fin.readline()
+            out2.write('The word to be matched is:\n' + str(word) + '\n')
+            fin.close()
+
+            out = open('track.out', 'w')
+            g2.setWord(word)
+            parserOutput, maxIndex = g2.parse('q', 0, [], [g2.getStartSymbol()], out, -1)
+            out2.write("Max sequence that was matched is:\n" + str(word[:maxIndex]) + '\n')
+            parserOutput.printToFile(out2)
+            out.close()
+            out2.close()
+        elif x == '6' or x == '7' or x == '8':
+            print(g2.print(x))
         else:
-            print(g.print(x))
+            print('No such option!')

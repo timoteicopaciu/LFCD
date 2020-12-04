@@ -1,21 +1,21 @@
 program,declarationList,declaration,declarationBody,type,mainTypes,arrayDeclaration,operator,expression,RELATION,stmtList,stmt,assignStmt,inStmt,outStmt,ifStmt,whileStmt,forStmt,condition
 main IDENTIFIER CONSTANT define Integer Char while for if else in.Integer in.Chars out + - * / % >> <= >= == != = < > [ ] { } ( ) ; ,
 program
-program->declarationList|declarationList stmtList
+program->main { declarationList }|main { declarationList stmtList }|main { stmtList }
 declarationList->declaration|declaration declarationList
 declaration->define type declarationBody
 declarationBody->IDENTIFIER ;|IDENTIFIER , declarationBody
 type->mainTypes|arrayDeclaration
 mainTypes->Integer|Char
-arrayDeclaration->mainTypes [ numericalCONSTANT ]
+arrayDeclaration->mainTypes [ CONSTANT ]
 operator->+|-|*|/|%
-expression->expression operator CONSTANT|IDENTIFIER operator CONSTANT|expression operator IDENTIFIER|IDENTIFIER operator IDENTIFIER|IDENTIFIER|CONSTANT|IDENTIFIER [ IDENTIFIER ]
+expression->IDENTIFIER operator CONSTANT|IDENTIFIER operator IDENTIFIER|IDENTIFIER|CONSTANT|IDENTIFIER [ IDENTIFIER ]
 RELATION-><|<=|==|!=|>=|>
-stmtList->stmt ;| stmt ; stmtList
+stmtList->stmt|stmt stmtList
 stmt->assignStmt|inStmt|outStmt|ifStmt|whileStmt|forStmt
-assignStmt->IDENTIFIER = expression
-inStmt->in.Integer >> IDENTIFIER|in.Chars >> IDENTIFIER
-outStmt->out ( text )|out ( IDENTIFIER )
+assignStmt->IDENTIFIER = expression ;
+inStmt->in.Integer >> IDENTIFIER ;|in.Chars >> IDENTIFIER ;
+outStmt->out ( CONSTANT ) ;|out ( IDENTIFIER ) ;
 ifStmt->if ( condition ) { stmtList }|if ( condition ) { stmtList } else { stmtList }
 whileStmt->while ( condition ) { stmtList }
 forStmt->for ( IDENTIFIER , expression , expression , numericalCONSTANT ) { stmtList }

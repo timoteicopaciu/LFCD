@@ -1,2 +1,1 @@
-The derivations string is:
-program => declarationList stmtList => declaration stmtList => define type declarationBody stmtList => define mainTypes declarationBody stmtList => define Integer declarationBody stmtList => define Integer IDENTIFIER , declarationBody stmtList => define Integer IDENTIFIER , IDENTIFIER ; stmtList => define Integer IDENTIFIER , IDENTIFIER ; stmt ; => define Integer IDENTIFIER , IDENTIFIER ; inStmt ; => define Integer IDENTIFIER , IDENTIFIER ; in.Chars >> IDENTIFIER ; 
+E r r o r ! 

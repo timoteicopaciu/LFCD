@@ -1,0 +1,6 @@
+The word to be matched is:
+['main', '{', 'define', 'Integer', 'IDENTIFIER', ',', 'IDENTIFIER', ',', 'IDENTIFIER', ',', 'IDENTIFIER', ';', '}']
+Max sequence that was matched is:
+['main', '{', 'define', 'Integer', 'IDENTIFIER', ',', 'IDENTIFIER', ',', 'IDENTIFIER', ',', 'IDENTIFIER', ';', '}']
+The derivations string is:
+program => main { declarationList } => main { declaration } => main { define type declarationBody } => main { define mainTypes declarationBody } => main { define Integer declarationBody } => main { define Integer IDENTIFIER , declarationBody } => main { define Integer IDENTIFIER , IDENTIFIER , declarationBody } => main { define Integer IDENTIFIER , IDENTIFIER , IDENTIFIER , declarationBody } => main { define Integer IDENTIFIER , IDENTIFIER , IDENTIFIER , IDENTIFIER ; } 
