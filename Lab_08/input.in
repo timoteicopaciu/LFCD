@@ -1,0 +1,19 @@
+main{
+	define Integer x , y , copy_x , p ;
+	y = 0;
+	p = 1;
+	in.Integer>> x;
+	copy_x = x;
+	while(x != -0){
+		y = y + (x % 10) * p;
+		p = p * 10;
+		x = x / 10;
+	}
+
+	if(2y == copy_x){
+		out('The_integer_is_palindrome!');
+	}
+	else{
+		out('The_integer_is_not_palindrome!');
+	}
+}
