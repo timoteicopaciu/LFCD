@@ -1,19 +1,13 @@
 main{
-	define Integer x , y , copy_x , p ;
-	y = 0;
-	p = 1;
-	in.Integer>> x;
-	copy_x = x;
-	while(x != -0){
-		y = y + (x % 10) * p;
-		p = p * 10;
-		x = x / 10;
-	}
+	define Char[100] s;
+	define Integer i;
+	in.Chars >> s;
 
-	if(2y == copy_x){
-		out('The_integer_is_palindrome!');
+	for(i, 1, s[0]+1, 1){
+		if(s[i] == 'e'){
+			s[i] = 'a';
+		}
 	}
-	else{
-		out('The_integer_is_not_palindrome!');
-	}
-}
+	out('The_line_transformed_is_');
+	out(s);
+ }
